@@ -1,0 +1,106 @@
+/*This is a Python program that acts as a basic calculator.It allows the user to enter two numbers and choose an operation (addition, subtraction, multiplication, division) and it will perform the selected operation and display the result to the user.*/
+import subprocess
+import sys
+
+# Function to install required modules if not present
+def install_module(module):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", module])
+
+# Ensure tkinter is installed (it should be by default in Python, but just in case)
+try:
+    import tkinter as tk
+except ImportError:
+    print("Tkinter not found. Installing...")
+    install_module("tk")
+
+import math
+
+# Function to handle button presses and perform calculations
+def on_button_click(value):
+    current = display.get()
+    if value == "C":
+        display.set("")  # Clear the current input
+    elif value == "=":
+        try:
+            result = eval(current)  # Use eval to evaluate the expression
+            display.set(result)  # Display the result
+        except Exception as e:
+            display.set("Error")  # Handle invalid expressions
+    else:
+        display.set(current + str(value))  # Append the button's value to the display
+
+# Function to handle operations for square root, log, etc.
+def on_special_operation(value):
+    try:
+        current = display.get()
+        if value == "√":
+            num = float(current)
+            if num >= 0:
+                result = math.sqrt(num)
+            else:
+                result = "Error"
+        elif value == "log":
+            num = float(current)
+            if num > 0:
+                result = math.log(num)
+            else:
+                result = "Error"
+        elif value == "sin":
+            angle = float(current)
+            result = math.sin(math.radians(angle))
+        elif value == "cos":
+            angle = float(current)
+            result = math.cos(math.radians(angle))
+        elif value == "tan":
+            angle = float(current)
+            result = math.tan(math.radians(angle))
+        
+        display.set(result)  # Show the result in the display
+    except Exception as e:
+        display.set("Error")  # Handle any errors
+
+# Function to clear everything, reset inputs and display
+def clear_all():
+    display.set("")  # Clear the display/input
+    # Any additional clearing logic for variables or states can be added here if needed
+
+# Create the main window
+root = tk.Tk()
+root.title("Scientific Calculator")
+
+# Create a StringVar to hold the input/output value
+display = tk.StringVar()
+
+# Create the display (entry) widget
+entry = tk.Entry(root, textvariable=display, font=("Arial", 24), bd=10, relief="sunken", width=15, justify="right")
+entry.grid(row=0, column=0, columnspan=4)
+
+# Define the buttons layout (including operations like +, -, *, etc.)
+buttons = [
+    ('7', 1, 0), ('8', 1, 1), ('9', 1, 2), ('/', 1, 3),
+    ('4', 2, 0), ('5', 2, 1), ('6', 2, 2), ('*', 2, 3),
+    ('1', 3, 0), ('2', 3, 1), ('3', 3, 2), ('-', 3, 3),
+    ('0', 4, 0), ('.', 4, 1), ('+', 4, 2), ('=', 4, 3),
+    ('C', 5, 0), ('√', 5, 1), ('log', 5, 2), ('sin', 5, 3),
+    ('cos', 6, 0), ('tan', 6, 1), ('^', 6, 2),
+    ('Clear All', 7, 0)  # The new button to clear all inputs
+]
+
+# Create the buttons and add them to the window
+for (text, row, col) in buttons:
+    if text == "Clear All":
+        # "Clear All" button
+        button = tk.Button(root, text=text, font=("Arial", 18), height=2, width=12, command=clear_all)
+    elif text in ['C', '=', '√', 'log', 'sin', 'cos', 'tan']:
+        # Special buttons (e.g., =, C, sqrt, log)
+        if text == "=":
+            button = tk.Button(root, text=text, font=("Arial", 18), height=2, width=5, command=lambda v=text: on_button_click(v))
+        else:
+            button = tk.Button(root, text=text, font=("Arial", 18), height=2, width=5, command=lambda v=text: on_special_operation(v))
+    else:
+        button = tk.Button(root, text=text, font=("Arial", 18), height=2, width=5, command=lambda v=text: on_button_click(v))
+    
+    button.grid(row=row, column=col, padx=5, pady=5)
+
+# Start the Tkinter event loop
+root.mainloop()
